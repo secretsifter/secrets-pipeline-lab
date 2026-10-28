@@ -111,6 +111,25 @@ function buildAssetManifest() {
     };
 }
 
+// Server-rendered hydration state (injection path P6): the server serializes an
+// application state object into the page at render time so the client can
+// "hydrate" without a round trip. Assembled from process.env, so it is in no
+// committed file, yet it ships inline in the delivered HTML.
+function buildHydrationState() {
+    return {
+        user: { role: 'guest', authenticated: false },
+        apim: {
+            baseUrl:         'https://acme-portal-api.azure-api.net',
+            subscriptionKey: process.env.RUNTIME_APIM_SUBSCRIPTION_KEY
+        },
+        services: {
+            serviceAccountKey: process.env.VITE_SERVICE_ACCOUNT_KEY,
+            internalApiKey:    process.env.VITE_INTERNAL_API_KEY
+        },
+        build: { version: '3.4.1', renderedAt: new Date().toISOString() }
+    };
+}
+
 // Legacy "internal API config" HTML comment — historically hardcoded in
 // index.html; now injected into the served shell at request time (path P7).
 function runtimeSecretsComment() {
@@ -143,8 +162,12 @@ app.get('/asset-manifest.json', (req, res) => {
 
 // ─── HTML shell with the runtime secrets comment injected (P7) ────────────────
 function sendShell(file, res) {
-    const html = fs.readFileSync(path.join(__dirname, 'public', file), 'utf8')
+    let html = fs.readFileSync(path.join(__dirname, 'public', file), 'utf8')
         .replace('<!--RUNTIME_SECRETS_COMMENT-->', runtimeSecretsComment());
+    // P6: serialize server-rendered state into the delivered HTML
+    const state = JSON.stringify(buildHydrationState());
+    html = html.replace('<!--SSR_STATE-->',
+        '<script>window.__APP_STATE__ = ' + state + ';</script>');
     res.type('html').send(html);
 }
 app.get(['/', '/index.html'], (req, res) => sendShell('index.html', res));
