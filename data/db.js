@@ -9,38 +9,38 @@ const crypto = require('crypto');
 // ─────────────────────────────────────────────────────────────────────────────
 
 const customers = [
-    { id: 'CUST-001', name: 'James Mitchell',   email: 'james.mitchell@gmail.com',    password: 'Pass@1234',     dob: '1978-03-15', phone: '312-555-0101', ssn: 'XXX-XX-4521', address: '142 Oak Street, Chicago, IL 60601',         memberSince: '2018-06-10' },
-    { id: 'CUST-002', name: 'Sarah Thompson',   email: 'sarah.thompson@outlook.com',  password: 'Sarah#2024',    dob: '1985-07-22', phone: '415-555-0202', ssn: 'XXX-XX-8832', address: '78 Maple Ave, San Francisco, CA 94103',     memberSince: '2019-01-15' },
-    { id: 'CUST-003', name: 'Robert Chen',      email: 'robert.chen@yahoo.com',       password: 'Chen$Secure1',  dob: '1972-11-30', phone: '212-555-0303', ssn: 'XXX-XX-1147', address: '305 Park Blvd, New York, NY 10001',         memberSince: '2017-09-20' },
-    { id: 'CUST-004', name: 'Emily Davis',      email: 'emily.davis@gmail.com',       password: 'Emily!9900',    dob: '1990-02-14', phone: '713-555-0404', ssn: 'XXX-XX-3398', address: '901 River Rd, Houston, TX 77001',           memberSince: '2020-03-05' },
-    { id: 'CUST-005', name: 'Michael Johnson',  email: 'mjohnson@hotmail.com',        password: 'MJohn#456',     dob: '1968-08-19', phone: '602-555-0505', ssn: 'XXX-XX-7764', address: '54 Desert View Dr, Phoenix, AZ 85001',      memberSince: '2016-11-30' },
-    { id: 'CUST-006', name: 'Linda Martinez',   email: 'linda.martinez@gmail.com',    password: 'Linda@789',     dob: '1982-05-03', phone: '214-555-0606', ssn: 'XXX-XX-2215', address: '222 Lone Star Blvd, Dallas, TX 75201',      memberSince: '2021-07-12' },
-    { id: 'CUST-007', name: 'David Wilson',     email: 'dwilson@yahoo.com',           password: 'DWilson$2024',  dob: '1975-12-08', phone: '206-555-0707', ssn: 'XXX-XX-9940', address: '1200 Pike Place, Seattle, WA 98101',        memberSince: '2019-04-18' },
-    { id: 'CUST-008', name: 'Jennifer Lee',     email: 'jen.lee@outlook.com',         password: 'JLee!2023',     dob: '1993-06-25', phone: '404-555-0808', ssn: 'XXX-XX-5573', address: '88 Peach Tree St, Atlanta, GA 30301',       memberSince: '2022-01-09' },
-    { id: 'CUST-009', name: 'Christopher Brown',email: 'cbrown@gmail.com',            password: 'CBrown#88',     dob: '1980-09-17', phone: '617-555-0909', ssn: 'XXX-XX-6628', address: '45 Beacon Hill, Boston, MA 02101',          memberSince: '2018-08-22' },
-    { id: 'CUST-010', name: 'Amanda Garcia',    email: 'amanda.garcia@gmail.com',     password: 'Amanda@512',    dob: '1987-01-11', phone: '305-555-1010', ssn: 'XXX-XX-3341', address: '700 Biscayne Blvd, Miami, FL 33101',        memberSince: '2020-10-15' },
-    { id: 'CUST-011', name: 'Kevin Anderson',   email: 'kevin.anderson@hotmail.com',  password: 'KAnderson$1',   dob: '1970-04-28', phone: '503-555-1111', ssn: 'XXX-XX-8856', address: '300 Morrison Bridge, Portland, OR 97201',   memberSince: '2015-05-03' },
-    { id: 'CUST-012', name: 'Michelle Taylor',  email: 'mtaylor@yahoo.com',           password: 'MTaylor!007',   dob: '1996-10-05', phone: '720-555-1212', ssn: 'XXX-XX-4419', address: '1600 16th St, Denver, CO 80202',            memberSince: '2023-02-14' },
-    { id: 'CUST-013', name: 'Brian Thomas',     email: 'brian.thomas@gmail.com',      password: 'BThomas#22',    dob: '1965-07-14', phone: '612-555-1313', ssn: 'XXX-XX-7702', address: '501 Nicollet Mall, Minneapolis, MN 55401',  memberSince: '2014-12-01' },
-    { id: 'CUST-014', name: 'Karen Jackson',    email: 'karen.jackson@outlook.com',   password: 'KJackson$44',   dob: '1983-03-21', phone: '615-555-1414', ssn: 'XXX-XX-1134', address: '400 Broadway, Nashville, TN 37201',         memberSince: '2019-06-30' },
-    { id: 'CUST-015', name: 'Steven White',     email: 'steven.white@gmail.com',      password: 'SWhite!1988',   dob: '1988-11-09', phone: '702-555-1515', ssn: 'XXX-XX-9987', address: '3500 Las Vegas Blvd, Las Vegas, NV 89109',  memberSince: '2021-03-17' },
-    { id: 'CUST-016', name: 'Nancy Harris',     email: 'nharris@hotmail.com',         password: 'NHarris@66',    dob: '1977-08-30', phone: '314-555-1616', ssn: 'XXX-XX-2263', address: '200 Market St, St. Louis, MO 63101',        memberSince: '2017-07-25' },
-    { id: 'CUST-017', name: 'Mark Robinson',    email: 'mark.robinson@yahoo.com',     password: 'MRobin$2025',   dob: '1991-02-18', phone: '216-555-1717', ssn: 'XXX-XX-5576', address: '100 Public Square, Cleveland, OH 44101',    memberSince: '2022-09-08' },
-    { id: 'CUST-018', name: 'Patricia Clark',   email: 'pclark@gmail.com',            password: 'PClark#1977',   dob: '1977-06-07', phone: '504-555-1818', ssn: 'XXX-XX-8809', address: '600 Canal St, New Orleans, LA 70130',       memberSince: '2018-11-19' },
-    { id: 'CUST-019', name: 'Daniel Lewis',     email: 'daniel.lewis@outlook.com',    password: 'DLewis!333',    dob: '1984-09-26', phone: '443-555-1919', ssn: 'XXX-XX-3322', address: '101 E Pratt St, Baltimore, MD 21202',       memberSince: '2020-04-11' },
-    { id: 'CUST-020', name: 'Sandra Walker',    email: 'sandra.walker@gmail.com',     password: 'SWalker$99',    dob: '1969-12-03', phone: '412-555-2020', ssn: 'XXX-XX-6645', address: '500 Grant St, Pittsburgh, PA 15219',        memberSince: '2016-08-14' },
-    { id: 'CUST-021', name: 'Paul Allen',       email: 'paul.allen@yahoo.com',        password: 'PAllen@2024',   dob: '1994-04-15', phone: '901-555-2121', ssn: 'XXX-XX-1158', address: '149 Union Ave, Memphis, TN 38103',          memberSince: '2023-05-20' },
-    { id: 'CUST-022', name: 'Barbara Young',    email: 'byoung@hotmail.com',          password: 'BYoung#1990',   dob: '1990-07-22', phone: '502-555-2222', ssn: 'XXX-XX-4491', address: '500 W Main St, Louisville, KY 40202',       memberSince: '2021-10-03' },
-    { id: 'CUST-023', name: 'Jason Hall',       email: 'jason.hall@gmail.com',        password: 'JHall$2023',    dob: '1986-01-08', phone: '317-555-2323', ssn: 'XXX-XX-7724', address: '200 S Meridian St, Indianapolis, IN 46225', memberSince: '2019-12-16' },
-    { id: 'CUST-024', name: 'Donna King',       email: 'donna.king@outlook.com',      password: 'DKing!888',     dob: '1973-10-19', phone: '804-555-2424', ssn: 'XXX-XX-2237', address: '1001 E Main St, Richmond, VA 23219',        memberSince: '2017-02-28' },
-    { id: 'CUST-025', name: 'Charles Wright',   email: 'charles.wright@gmail.com',    password: 'CWright@55',    dob: '1979-05-14', phone: '602-555-2525', ssn: 'XXX-XX-5560', address: '777 N Central Ave, Phoenix, AZ 85004',      memberSince: '2020-07-07' }
+    { id: 'CUST-001', name: 'James Mitchell',   email: 'james.mitchell@gmail.com',    dob: '1978-03-15', phone: '312-555-0101', ssn: 'XXX-XX-4521', address: '142 Oak Street, Chicago, IL 60601',         memberSince: '2018-06-10' },
+    { id: 'CUST-002', name: 'Sarah Thompson',   email: 'sarah.thompson@outlook.com',  dob: '1985-07-22', phone: '415-555-0202', ssn: 'XXX-XX-8832', address: '78 Maple Ave, San Francisco, CA 94103',     memberSince: '2019-01-15' },
+    { id: 'CUST-003', name: 'Robert Chen',      email: 'robert.chen@yahoo.com',       dob: '1972-11-30', phone: '212-555-0303', ssn: 'XXX-XX-1147', address: '305 Park Blvd, New York, NY 10001',         memberSince: '2017-09-20' },
+    { id: 'CUST-004', name: 'Emily Davis',      email: 'emily.davis@gmail.com',       dob: '1990-02-14', phone: '713-555-0404', ssn: 'XXX-XX-3398', address: '901 River Rd, Houston, TX 77001',           memberSince: '2020-03-05' },
+    { id: 'CUST-005', name: 'Michael Johnson',  email: 'mjohnson@hotmail.com',        dob: '1968-08-19', phone: '602-555-0505', ssn: 'XXX-XX-7764', address: '54 Desert View Dr, Phoenix, AZ 85001',      memberSince: '2016-11-30' },
+    { id: 'CUST-006', name: 'Linda Martinez',   email: 'linda.martinez@gmail.com',    dob: '1982-05-03', phone: '214-555-0606', ssn: 'XXX-XX-2215', address: '222 Lone Star Blvd, Dallas, TX 75201',      memberSince: '2021-07-12' },
+    { id: 'CUST-007', name: 'David Wilson',     email: 'dwilson@yahoo.com',           dob: '1975-12-08', phone: '206-555-0707', ssn: 'XXX-XX-9940', address: '1200 Pike Place, Seattle, WA 98101',        memberSince: '2019-04-18' },
+    { id: 'CUST-008', name: 'Jennifer Lee',     email: 'jen.lee@outlook.com',         dob: '1993-06-25', phone: '404-555-0808', ssn: 'XXX-XX-5573', address: '88 Peach Tree St, Atlanta, GA 30301',       memberSince: '2022-01-09' },
+    { id: 'CUST-009', name: 'Christopher Brown',email: 'cbrown@gmail.com',            dob: '1980-09-17', phone: '617-555-0909', ssn: 'XXX-XX-6628', address: '45 Beacon Hill, Boston, MA 02101',          memberSince: '2018-08-22' },
+    { id: 'CUST-010', name: 'Amanda Garcia',    email: 'amanda.garcia@gmail.com',     dob: '1987-01-11', phone: '305-555-1010', ssn: 'XXX-XX-3341', address: '700 Biscayne Blvd, Miami, FL 33101',        memberSince: '2020-10-15' },
+    { id: 'CUST-011', name: 'Kevin Anderson',   email: 'kevin.anderson@hotmail.com',  dob: '1970-04-28', phone: '503-555-1111', ssn: 'XXX-XX-8856', address: '300 Morrison Bridge, Portland, OR 97201',   memberSince: '2015-05-03' },
+    { id: 'CUST-012', name: 'Michelle Taylor',  email: 'mtaylor@yahoo.com',           dob: '1996-10-05', phone: '720-555-1212', ssn: 'XXX-XX-4419', address: '1600 16th St, Denver, CO 80202',            memberSince: '2023-02-14' },
+    { id: 'CUST-013', name: 'Brian Thomas',     email: 'brian.thomas@gmail.com',      dob: '1965-07-14', phone: '612-555-1313', ssn: 'XXX-XX-7702', address: '501 Nicollet Mall, Minneapolis, MN 55401',  memberSince: '2014-12-01' },
+    { id: 'CUST-014', name: 'Karen Jackson',    email: 'karen.jackson@outlook.com',   dob: '1983-03-21', phone: '615-555-1414', ssn: 'XXX-XX-1134', address: '400 Broadway, Nashville, TN 37201',         memberSince: '2019-06-30' },
+    { id: 'CUST-015', name: 'Steven White',     email: 'steven.white@gmail.com',      dob: '1988-11-09', phone: '702-555-1515', ssn: 'XXX-XX-9987', address: '3500 Las Vegas Blvd, Las Vegas, NV 89109',  memberSince: '2021-03-17' },
+    { id: 'CUST-016', name: 'Nancy Harris',     email: 'nharris@hotmail.com',         dob: '1977-08-30', phone: '314-555-1616', ssn: 'XXX-XX-2263', address: '200 Market St, St. Louis, MO 63101',        memberSince: '2017-07-25' },
+    { id: 'CUST-017', name: 'Mark Robinson',    email: 'mark.robinson@yahoo.com',     dob: '1991-02-18', phone: '216-555-1717', ssn: 'XXX-XX-5576', address: '100 Public Square, Cleveland, OH 44101',    memberSince: '2022-09-08' },
+    { id: 'CUST-018', name: 'Patricia Clark',   email: 'pclark@gmail.com',            dob: '1977-06-07', phone: '504-555-1818', ssn: 'XXX-XX-8809', address: '600 Canal St, New Orleans, LA 70130',       memberSince: '2018-11-19' },
+    { id: 'CUST-019', name: 'Daniel Lewis',     email: 'daniel.lewis@outlook.com',    dob: '1984-09-26', phone: '443-555-1919', ssn: 'XXX-XX-3322', address: '101 E Pratt St, Baltimore, MD 21202',       memberSince: '2020-04-11' },
+    { id: 'CUST-020', name: 'Sandra Walker',    email: 'sandra.walker@gmail.com',     dob: '1969-12-03', phone: '412-555-2020', ssn: 'XXX-XX-6645', address: '500 Grant St, Pittsburgh, PA 15219',        memberSince: '2016-08-14' },
+    { id: 'CUST-021', name: 'Paul Allen',       email: 'paul.allen@yahoo.com',        dob: '1994-04-15', phone: '901-555-2121', ssn: 'XXX-XX-1158', address: '149 Union Ave, Memphis, TN 38103',          memberSince: '2023-05-20' },
+    { id: 'CUST-022', name: 'Barbara Young',    email: 'byoung@hotmail.com',          dob: '1990-07-22', phone: '502-555-2222', ssn: 'XXX-XX-4491', address: '500 W Main St, Louisville, KY 40202',       memberSince: '2021-10-03' },
+    { id: 'CUST-023', name: 'Jason Hall',       email: 'jason.hall@gmail.com',        dob: '1986-01-08', phone: '317-555-2323', ssn: 'XXX-XX-7724', address: '200 S Meridian St, Indianapolis, IN 46225', memberSince: '2019-12-16' },
+    { id: 'CUST-024', name: 'Donna King',       email: 'donna.king@outlook.com',      dob: '1973-10-19', phone: '804-555-2424', ssn: 'XXX-XX-2237', address: '1001 E Main St, Richmond, VA 23219',        memberSince: '2017-02-28' },
+    { id: 'CUST-025', name: 'Charles Wright',   email: 'charles.wright@gmail.com',    dob: '1979-05-14', phone: '602-555-2525', ssn: 'XXX-XX-5560', address: '777 N Central Ave, Phoenix, AZ 85004',      memberSince: '2020-07-07' }
 ];
 
 // Forgotten QA test account — left in seeded data after a release cycle.
 // The frontend bundle (app.js) still references this email in a leftover comment.
 customers.push({
     id: 'CUST-9999', name: 'QA Test Account', email: 'qa.test@acme-portal.local',
-    password: 'TestPass!2023', dob: '1990-01-01', phone: '555-555-0000',
+    dob: '1990-01-01', phone: '555-555-0000',
     ssn: 'XXX-XX-0000', address: '1 Test Lane, QA City, CA 00000',
     memberSince: '2023-01-01', role: 'admin'
 });
@@ -61,7 +61,6 @@ for (let i = 26; i <= 4998; i++) {
         id:          `CUST-${String(i).padStart(3, '0')}`,
         name:        `${fn} ${ln}`,
         email:       `${fn.toLowerCase()}.${ln.toLowerCase()}${i}@example.com`,
-        password:    `P@ss!${i}`,
         dob:         `19${70 + (i % 30)}-${String((i % 12) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`,
         phone:       `555-${String(100 + (i % 900)).padStart(3, '0')}-${String(i).padStart(4, '0').slice(-4)}`,
         ssn:         `XXX-XX-${String(i).padStart(4, '0')}`,
@@ -73,6 +72,8 @@ for (let i = 26; i <= 4998; i++) {
 // Attach a synthetic password hash + salt to every record. Deterministic so demo
 // runs are reproducible. Format mirrors what a Burp response would show.
 customers.forEach(c => {
+    // demo password derived at runtime — no credential literal ships in source
+    c.password = crypto.createHash('md5').update(c.id + ':pw').digest('hex').slice(0, 12);
     const salt = crypto.createHash('md5').update(c.id + ':salt').digest('hex').slice(0, 16);
     const hash = crypto.createHash('sha256').update(c.password + salt).digest('hex').toUpperCase();
     c.salt = salt;
