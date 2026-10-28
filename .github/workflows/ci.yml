@@ -23,6 +23,8 @@ jobs:
   secret-scan:
     name: Shift-left secret scan (gate)
     runs-on: ubuntu-latest
+    env:
+      GG_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,6 +43,15 @@ jobs:
           trufflehog --version
       - name: trufflehog — fails on verified/unknown secrets in the working tree
         run: trufflehog filesystem . --no-update --fail --results=verified,unknown
+      - name: GitGuardian (ggshield) — SaaS secret scan
+        # No-ops until the GITGUARDIAN_API_KEY repo secret is set; then it scans
+        # every push and reports to the Actions log and the GitGuardian dashboard.
+        if: ${{ env.GG_KEY != '' }}
+        env:
+          GITGUARDIAN_API_KEY: ${{ env.GG_KEY }}
+        run: |
+          pipx install ggshield || pip install --user ggshield
+          ggshield secret scan repo .
 
   build:
     name: Build (injects the secret — path P3 to P4)
