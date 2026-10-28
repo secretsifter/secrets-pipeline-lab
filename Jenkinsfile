@@ -18,7 +18,12 @@ pipeline {
         stage('Shift-left secret scan (gate)') {
             steps {
                 sh '''
-                    curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+                    case "$(uname -m)" in
+                      x86_64)        GLARCH=x64 ;;
+                      aarch64|arm64) GLARCH=arm64 ;;
+                      *)             GLARCH=x64 ;;
+                    esac
+                    curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_${GLARCH}.tar.gz" \
                       | tar -xz -C . gitleaks
                     ./gitleaks version
                     # fails the build on ANY finding in source/history — clean source passes green
