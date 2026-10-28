@@ -1,0 +1,109 @@
+name: CI/CD Pipeline
+
+# Realistic pipeline: a shift-left secret-scan GATE, then build, then deploy.
+# The gate runs on source (which is clean) and passes green — so the pipeline
+# ships the secret that the build injects, never having seen it. The final
+# `artifact-audit` job is research instrumentation (most real pipelines do NOT
+# scan built bundles) that surfaces what actually went out the door.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GITLEAKS_VERSION: "8.30.1"
+  TRUFFLEHOG_VERSION: "3.99.7"
+
+jobs:
+  secret-scan:
+    name: Shift-left secret scan (gate)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0            # full history so the scan sees every commit
+      - name: Install gitleaks ${{ env.GITLEAKS_VERSION }}
+        run: |
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
+      - name: gitleaks — fails the build on ANY finding in source/history
+        run: gitleaks git . --no-banner --redact --exit-code 1
+      - name: Install trufflehog ${{ env.TRUFFLEHOG_VERSION }}
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh \
+            | sudo sh -s -- -b /usr/local/bin "v${TRUFFLEHOG_VERSION}"
+          trufflehog --version
+      - name: trufflehog — fails on verified/unknown secrets in the working tree
+        run: trufflehog filesystem . --no-update --fail --results=verified,unknown
+
+  build:
+    name: Build (injects the secret — path P3 to P4)
+    needs: secret-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Materialize .env from the CI secret store (path P3)
+        run: printf '%s\n' "$DOTENV" > .env
+        env:
+          DOTENV: ${{ secrets.DOTENV }}
+      - run: npm ci
+      - name: Build — bundler inlines .env secrets into dist (path P4)
+        run: npm run build
+      - name: Show that the secret is now baked into the shipped bundle
+        run: |
+          echo "Stripe key grepped straight out of the compiled bundle:"
+          grep -oE 'sk_live_[A-Za-z0-9]+' dist/js/*.js | head -1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-bundle
+          path: dist/
+
+  deploy:
+    name: Deploy (stand up the app — path P5 to P7)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build container image (secrets injected via build-arg, not source)
+        run: |
+          printf '%s\n' "$DOTENV" > /tmp/dotenv
+          docker build --build-arg DOTENV="$(cat /tmp/dotenv)" -t insecureshield-portal:${{ github.sha }} .
+        env:
+          DOTENV: ${{ secrets.DOTENV }}
+      - name: Run the container and confirm it serves live secrets
+        run: |
+          docker run -d -p 3200:3200 --name portal insecureshield-portal:${{ github.sha }}
+          sleep 4
+          echo "GET /config.json from the deployed app:"
+          curl -s http://localhost:3200/config.json | grep -E 'client_secret|subscriptionKey' || true
+          docker rm -f portal
+
+  artifact-audit:
+    name: Artifact audit (research instrumentation — not a typical gate)
+    needs: build
+    runs-on: ubuntu-latest
+    # Does not block the pipeline: it documents what shipped, it does not stop it.
+    continue-on-error: true
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-bundle
+          path: dist
+      - name: Install gitleaks ${{ env.GITLEAKS_VERSION }}
+        run: |
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin gitleaks
+      - name: Scan the BUILD ARTIFACT — this is where the secret finally surfaces
+        run: |
+          echo "The same scanner that saw nothing in source now sees the shipped secrets:"
+          gitleaks dir dist --no-banner --redact --exit-code 1
