@@ -103,8 +103,6 @@ jobs:
     name: Artifact audit (research instrumentation — not a typical gate)
     needs: build
     runs-on: ubuntu-latest
-    # Does not block the pipeline: it documents what shipped, it does not stop it.
-    continue-on-error: true
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -115,6 +113,12 @@ jobs:
           curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
             | sudo tar -xz -C /usr/local/bin gitleaks
       - name: Scan the BUILD ARTIFACT — this is where the secret finally surfaces
+        # Instrumentation, not a gate: report the shipped secrets without failing.
         run: |
-          echo "The same scanner that saw nothing in source now sees the shipped secrets:"
-          gitleaks dir dist --no-banner --redact --exit-code 1
+          gitleaks dir dist --no-banner --redact --report-format json --report-path leaks.json --exit-code 0 || true
+          n=$(python3 -c "import json;print(len(json.load(open('leaks.json'))))" 2>/dev/null || echo '?')
+          echo "::warning title=Secrets in shipped artifact::$n secrets found in the build artifact that the shift-left gate passed clean"
+          echo "----------------------------------------------------------------"
+          echo "The same gitleaks that saw 0 in source now sees $n secrets in dist/."
+          echo "The gate was green. The build shipped them anyway. That is the blind spot."
+          echo "----------------------------------------------------------------"
